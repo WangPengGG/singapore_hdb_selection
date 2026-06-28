@@ -3,13 +3,16 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>新加坡 HDB 选房研究 · Clementi（5房）vs Pinnacle@Duxton</title>
-<meta name="description" content="新加坡 HDB 转售选房研究：Clementi 5房（2010后新组屋）与 Pinnacle@Duxton 4/5房。地铁≤8分钟、名校1km。含 PropertyGuru 实时在售房源核对。" />
+<title>新加坡 HDB 选房研究 · Trivelis vs Clementi Crest vs Pinnacle@Duxton（5房）</title>
+<meta name="description" content="PR家庭 HDB 5房转售选房研究：Trivelis、Clementi Crest、Pinnacle@Duxton 三方对比，含地图、精选在售房源（PropertyGuru链接）、精确地契、同栋近期成交与 PR 财务方案。" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   :root{
     --bg:#f6f7f9; --card:#fff; --ink:#1c2430; --muted:#5b6675; --line:#e6e9ee;
     --brand:#c0392b; --brand2:#1f6f8b; --ok:#1e8e5a; --warn:#b9770e; --bad:#c0392b;
-    --chip:#eef2f6; --shadow:0 1px 3px rgba(20,30,45,.07),0 8px 24px rgba(20,30,45,.06);
+    --triv:#1f6f8b; --crest:#1e8e5a; --pin:#c0392b;
+    --shadow:0 1px 3px rgba(20,30,45,.07),0 8px 24px rgba(20,30,45,.06);
   }
   *{box-sizing:border-box}
   html{-webkit-text-size-adjust:100%}
@@ -20,7 +23,7 @@
   a:hover{text-decoration:underline}
   .wrap{max-width:1040px;margin:0 auto;padding:0 18px}
   header.hero{background:linear-gradient(135deg,#1f6f8b 0%,#13455a 100%);color:#fff;padding:46px 0 38px}
-  header.hero h1{margin:0 0 8px;font-size:30px;line-height:1.25;letter-spacing:.2px}
+  header.hero h1{margin:0 0 8px;font-size:29px;line-height:1.25;letter-spacing:.2px}
   header.hero p.sub{margin:0 0 18px;color:#d8e7ee;font-size:16px}
   .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
   .chip{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);color:#fff;
@@ -33,60 +36,65 @@
   h2{font-size:21px;margin:2px 0 14px;display:flex;align-items:center;gap:9px}
   h2 .num{display:inline-flex;align-items:center;justify-content:center;width:27px;height:27px;
     background:var(--brand);color:#fff;border-radius:8px;font-size:14px;flex:none}
-  h3{font-size:16.5px;margin:20px 0 9px;color:var(--ink)}
+  h3{font-size:16.5px;margin:20px 0 9px}
   p{margin:9px 0}
   .lead{font-size:17px}
-  .callout{border-left:4px solid var(--brand);background:#fff7f5;padding:12px 15px;border-radius:0 10px 10px 0;margin:12px 0}
   .fix{border-left:4px solid var(--ok);background:#f0f8f3;padding:12px 15px;border-radius:0 10px 10px 0;margin:12px 0;font-size:14.5px}
   .note{border-left:4px solid var(--warn);background:#fff9ef;padding:12px 15px;border-radius:0 10px 10px 0;margin:12px 0;font-size:14.5px}
   .disclaimer{background:#fbfbfc;border:1px dashed var(--line);border-radius:10px;padding:12px 15px;color:var(--muted);font-size:13.5px}
   .tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:12px 0;border:1px solid var(--line);border-radius:10px}
-  table{border-collapse:collapse;width:100%;font-size:14px;min-width:560px}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:640px}
   th,td{padding:9px 11px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
   thead th{background:#f3f5f8;font-weight:600;color:#39424f;position:sticky;top:0}
   tbody tr:last-child td{border-bottom:none}
-  tbody tr:hover{background:#fafbfc}
   td.price{font-weight:700;white-space:nowrap}
   .tag{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
-  .t-ok{background:#e6f5ec;color:var(--ok)}
-  .t-warn{background:#fdf1de;color:var(--warn)}
-  .t-bad{background:#fbe9e7;color:var(--bad)}
-  .t-room{background:#e9eef6;color:#34557f}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:6px}
-  .rec{border:1px solid var(--line);border-radius:12px;padding:15px;background:#fcfdfe}
-  .rec .rank{font-size:12px;font-weight:700;color:#fff;background:var(--brand2);padding:2px 9px;border-radius:999px}
-  .rec.first .rank{background:var(--brand)}
-  .rec h4{margin:11px 0 6px;font-size:16px}
-  .rec p{margin:0;font-size:14px;color:var(--muted)}
-  ul.tight{margin:8px 0;padding-left:20px}
-  ul.tight li{margin:5px 0}
-  .btnlink{display:inline-block;margin:6px 8px 6px 0;padding:8px 13px;background:var(--brand2);color:#fff;
-    border-radius:9px;font-size:14px;font-weight:600}
+  .t-ok{background:#e6f5ec;color:var(--ok)} .t-warn{background:#fdf1de;color:var(--warn)}
+  .t-bad{background:#fbe9e7;color:var(--bad)} .t-room{background:#e9eef6;color:#34557f}
+  /* map */
+  #map{height:440px;width:100%;border-radius:12px;border:1px solid var(--line);z-index:0}
+  .maplegend{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:13px;color:var(--muted)}
+  .maplegend span{display:inline-flex;align-items:center;gap:6px}
+  .dot{width:12px;height:12px;border-radius:50%;display:inline-block;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.15)}
+  .leaflet-popup-content{font:14px/1.5 -apple-system,"PingFang SC",sans-serif}
+  .leaflet-popup-content b{font-size:14.5px}
+  /* pick cards */
+  .picks{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:8px}
+  .pick{border:1px solid var(--line);border-radius:12px;padding:16px;background:#fcfdfe;display:flex;flex-direction:column}
+  .pick .pj{font-size:12px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;margin-bottom:6px}
+  .pick.triv .pj{color:var(--triv)} .pick.crest .pj{color:var(--crest)} .pick.pin .pj{color:var(--pin)}
+  .pick h4{margin:0 0 4px;font-size:16px}
+  .pick .pprice{font-size:18px;font-weight:800;margin:2px 0 8px}
+  .pick ul{margin:6px 0 10px;padding-left:18px;font-size:13.5px;color:#37414e}
+  .pick ul li{margin:3px 0}
+  .pick .why{font-size:13.5px;color:var(--muted);background:#f4f7f9;border-radius:8px;padding:9px 11px;margin:0 0 12px}
+  .pick .pgbtn{margin-top:auto;display:inline-block;text-align:center;background:var(--brand2);color:#fff;font-weight:600;font-size:13.5px;border-radius:9px;padding:9px 12px}
+  .pick .pgbtn:hover{text-decoration:none;opacity:.92}
+  .pick .pgbtn.alt{background:#eef2f6;color:#34557f}
+  .grouptitle{display:flex;align-items:center;gap:8px;margin:22px 0 6px;font-size:15px;font-weight:700}
+  .gd{width:11px;height:11px;border-radius:50%;display:inline-block}
+  ul.tight{margin:8px 0;padding-left:20px} ul.tight li{margin:5px 0}
+  .btnlink{display:inline-block;margin:6px 8px 6px 0;padding:8px 13px;background:var(--brand2);color:#fff;border-radius:9px;font-size:14px;font-weight:600}
   .btnlink:hover{text-decoration:none;opacity:.92}
-  .src{font-size:13px;color:var(--muted)}
-  .src a{word-break:break-all}
-  footer{padding:26px 0 50px;color:var(--muted);font-size:13px;text-align:center}
+  .src{font-size:13px;color:var(--muted)} .src a{word-break:break-all}
   .legend{font-size:12.5px;color:var(--muted);margin-top:6px}
-  @media(max-width:560px){
-    header.hero h1{font-size:24px}
-    h2{font-size:19px}
-    body{font-size:15px}
-  }
+  footer{padding:26px 0 50px;color:var(--muted);font-size:13px;text-align:center}
+  @media(max-width:560px){header.hero h1{font-size:23px} h2{font-size:19px} body{font-size:15px} #map{height:360px}}
 </style>
 </head>
 <body>
 <header class="hero">
   <div class="wrap">
-    <h1>新加坡 HDB 转售选房研究</h1>
-    <p class="sub">Clementi（D5）<strong>优先 5房 · 只看 2010 后新组屋</strong> · Pinnacle@Duxton（D2）4/5房</p>
+    <h1>新加坡 HDB 5房选房研究</h1>
+    <p class="sub">Trivelis ｜ Clementi Crest ｜ Pinnacle@Duxton —— 三方对比 · 精选在售 · 财务方案</p>
     <div class="chips">
-      <span class="chip">🏠 Clementi 优先 5房 · 2010 后</span>
-      <span class="chip">💰 Clementi S$1.1–1.5M</span>
-      <span class="chip">💰 Pinnacle 预算放开</span>
+      <span class="chip">👪 PR 夫妻 · 40岁 · 2孩 · 首套</span>
+      <span class="chip">💰 现金 ~S$0.9M(首付+税+装修)</span>
+      <span class="chip">🏠 优先 5房</span>
       <span class="chip">🚆 地铁 ≤ 8 分钟</span>
-      <span class="chip">🎓 名校 1km</span>
+      <span class="chip">🎓 学区(PR 已放宽)</span>
     </div>
-    <div class="updated">数据核对：2026-06-28（已更正地契、放开 Pinnacle 预算、Clementi 改为 5房/2010后）· 来源：PropertyGuru / 99.co / SRX / EdgeProp / HDB / LTA / OneMap</div>
+    <div class="updated">数据核对：2026-06-28 · 来源 PropertyGuru / SRX / EdgeProp / 99.co / stackedhomes / IRAS / MAS / HDB / OneMap</div>
   </div>
 </header>
 
@@ -94,119 +102,218 @@
 
   <section class="flat">
     <div class="disclaimer">
-      ⚠️ <strong>免责声明</strong>：本页为个人选房研究汇总，价格为对应日期的<strong>官方成交</strong>或<strong>当前挂牌</strong>，房源每日变动，具体单位请以 PropertyGuru / HDB 官方实查为准。本页不构成投资或财务建议；HDB 估价、地契、贷款额度、种族配额（EIP）等请向 HDB / 银行 / 持牌中介核实。
+      ⚠️ <strong>免责声明</strong>：本页为个人选房研究汇总；价格为对应日期的<strong>官方成交</strong>或<strong>当前挂牌</strong>，房源每日变动，请以 PropertyGuru / HDB 官方实查为准。本页不构成投资或财务建议；地契、HDB 估价、贷款额度、ABSD、种族配额(EIP)与 SPR 配额请向 HDB / 银行/房贷经纪 / 律师核实。地图标点为大致定位，仅供示意。
     </div>
   </section>
 
   <section>
     <h2><span class="num">★</span>地契更正（重要）</h2>
     <div class="fix">
-      ✅ <strong>Pinnacle@Duxton 的 99 年地契自约 2010 年起算，2026 年剩余约 84 年</strong>（2009年12月首批业主收钥匙；多个 2026 年来源含 S$1.63M 5房成交报道均显示“84 years remaining”，SRX 某4房显示“83年8个月”）。
-      早前版本误写“约77年（自2004）”——2004 只是项目<strong>推售</strong>年份,不是地契起始日，<strong>已更正</strong>。
-      参考：<a href="https://theonlinecitizen.com/2026/05/29/pinnacle-duxton-five-room-flat-sold-for-record-s-1-63-million-amid-rising-resale-demand" target="_blank" rel="noopener">The Online Citizen</a> ·
-      <a href="https://www.srx.com.sg/hdb/central-area/the-pinnacle-duxton-hbpin016/last-transacted-prices" target="_blank" rel="noopener">SRX Pinnacle</a>
+      经 HDB/SRX 核对，三套精确剩余地契(2026年中)为：<br>
+      • <strong>Pinnacle@Duxton ≈ 83年8个月</strong>(99年地契2011年起算；早前误写"77年/自2004"已更正)。<br>
+      • <strong>Trivelis ≈ 87年</strong>(99年地契2014年起算，TOP 2015年3月)——<strong>不是</strong>之前估的"~94年"，已更正；部分聚合网站显示的"93年11个月"与2014年起算不符，属计算错误。<br>
+      • <strong>Clementi Crest ≈ 94年4–5个月</strong>(99年地契2021年起算)——三套中地契最长。<br>
+      出价前务必在 HDB resale portal 核对<strong>该具体单位</strong>的精确地契起始日。
     </div>
   </section>
 
   <section>
     <h2><span class="num">1</span>一句话结论</h2>
-    <p class="lead">按「<strong>Clementi 优先 5房、只看 2010 后新组屋</strong>」筛选，当前同时满足
-    <strong>5房 + 2010后 + 地铁≤8分 + 名校1km</strong> 的在售只有两个项目：
-    <strong>Trivelis 5房（~S$1.28M）</strong>和 <strong>Clementi Crest 5房（~S$1.50M）</strong>。
-    Trivelis 性价比更高、预算留余量大；Crest 最新（2021）但已压预算顶。
-    <strong>Pinnacle@Duxton</strong>（预算已放开）：4房 ~S$1.225M–1.68M、5房 ~S$1.56M–1.68M，中央区地段、地契~84年、1km仅1所小学。</p>
-  </section>
-
-  <section>
-    <h2><span class="num">2</span>Clementi — 5房 · 2010 后新组屋（实时在售）</h2>
-
-    <h3>A. 符合硬条件（5房 · 2010后 · 地铁≤8分 · 名校1km）✅</h3>
-    <div class="tablewrap">
-      <table>
-        <thead><tr><th>项目 / 门牌</th><th>叫价</th><th>面积</th><th>建成</th><th>到地铁</th><th>名校（1km）</th><th>备注</th></tr></thead>
-        <tbody>
-          <tr><td><strong>Trivelis</strong> 311A Ave 4</td><td class="price">S$1,280,000</td><td>1,130 sqft</td><td>2015</td><td><span class="tag t-ok">6min</span></td><td>Nan Hua / Pei Tong</td><td>DBSS 精装，地契~94年，预算留余量大</td></tr>
-          <tr><td><strong>Clementi Crest</strong> 445A Ave 3</td><td class="price">S$1,499,999</td><td>1,216 sqft</td><td>2021</td><td><span class="tag t-ok">5min</span></td><td>Pei Tong / Nan Hua / Qifa</td><td>最新主流BTO，地契~94年，压预算顶</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p class="legend">当前在售中，仅这两个 2010 后项目的 5房同时满足地铁≤8分与名校1km。Cascadia（2017）/ Clementi Towers（2011）暂无 ≤S$1.5M 的 5房在售（5房本就稀少）。</p>
-
-    <h3>B. 2010 后 5房，但地铁超 8 分钟 ⚠️</h3>
-    <div class="tablewrap">
-      <table>
-        <thead><tr><th>项目 / 门牌</th><th>叫价</th><th>面积</th><th>建成</th><th>到地铁</th><th>短板</th></tr></thead>
-        <tbody>
-          <tr><td>Casa Clementi 416 Ave 1</td><td class="price">S$1,200,000</td><td>1,216 sqft</td><td>2012</td><td><span class="tag t-bad">13min</span></td><td>1.08km 到 Dover，超8分</td></tr>
-          <tr><td>Casa Clementi 425 Ave 1</td><td class="price">S$1,200,000–1,350,000</td><td>1,259–1,270 sqft</td><td>2012</td><td><span class="tag t-bad">13min</span></td><td>1.07km 到 Dover，超8分</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p class="legend">到地铁：步行至 Clementi（EW23）。名校：Nan Hua / Pei Tong / Qifa Primary、NUS High、NUS。1km 须逐套用 OneMap 核实。</p>
-    <a class="btnlink" href="https://www.propertyguru.com.sg/property-for-sale?listingType=sale&amp;isCommercial=false&amp;hdbEstate=10&amp;_freetextDisplay=Clementi&amp;propertyTypeGroup=H&amp;propertyTypeCode=5A&amp;propertyTypeCode=5I&amp;propertyTypeCode=5PA&amp;propertyTypeCode=5S&amp;maxPrice=1500000&amp;minPrice=1100000&amp;distanceToMRT=0.75&amp;minTopYear=2010&amp;sort=price&amp;order=asc" target="_blank" rel="noopener">🔗 打开 Clementi 5房 · 2010后 · 地铁&lt;750m 精确筛选</a>
-    <p class="legend">⚠️ 此精确筛选当前只返回 <strong>1 套(Trivelis 311A）</strong>。<strong>Clementi Crest 5房（2021、420m,实为合格）</strong>因该房源的 build-year 字段空缺,被 <code>minTopYear=2010</code> 过滤器误排除——已在上表 A 单独列出。过滤器只对"中介填了完整建成年份"的房源有效。</p>
-  </section>
-
-  <section>
-    <h2><span class="num">3</span>Pinnacle@Duxton — 实时在售（预算已放开，共 29 套）</h2>
-    <p><span class="note" style="display:inline-block;margin:8px 0">🚩 剩余地契约 <strong>84 年</strong>（地契自约2010起算）——比 Clementi 较新组屋短，影响贷款/CPF，逐套核实。1km 内仅 Cantonment Primary 一所小学。</span></p>
-    <div class="tablewrap">
-      <table>
-        <thead><tr><th>门牌</th><th>房型</th><th>叫价</th><th>面积</th><th>到地铁</th><th>备注</th></tr></thead>
-        <tbody>
-          <tr><td>1G Cantonment Rd</td><td><span class="tag t-room">4房</span></td><td class="price">S$1,225,000</td><td>1,012 sqft</td><td><span class="tag t-ok">7min</span></td><td>4房预算内最低</td></tr>
-          <tr><td>1 / 1C Cantonment Rd</td><td><span class="tag t-room">4房</span></td><td class="price">S$1,250,000–1,260,000</td><td>1,001–1,022 sqft</td><td><span class="tag t-ok">7min</span></td><td>中低楼层 4房群</td></tr>
-          <tr><td>1E Cantonment Rd</td><td><span class="tag t-room">4房</span></td><td class="price">S$1,500,000</td><td>1,001 sqft</td><td><span class="tag t-ok">7min</span></td><td>高楼层无遮挡</td></tr>
-          <tr><td>1 Cantonment Rd</td><td><span class="tag t-room">4房</span></td><td class="price">S$1,680,000</td><td>~1,023–1,033 sqft</td><td><span class="tag t-ok">7min</span></td><td>超高层、无遮挡（4房顶价）</td></tr>
-          <tr><td>1B Cantonment Rd</td><td><span class="tag t-room">5房</span></td><td class="price">S$1,680,000</td><td>1,163 sqft</td><td><span class="tag t-ok">7min</span></td><td>高层转角（5房在售最高）</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p class="legend">5房参考：2026年5月录得 S$1.63M 成交记录；当前 5房在售约 S$1.56M–1.68M。到地铁：步行至 Outram Park（EW16/NE3/TE17）/ Maxwell（TE18）。</p>
-    <a class="btnlink" href="https://www.propertyguru.com.sg/property-for-sale/at-pinnacle-duxton-20538?sort=price&amp;order=asc" target="_blank" rel="noopener">🔗 打开 Pinnacle 全部在售（升序，无价格上限）</a>
-  </section>
-
-  <section>
-    <h2><span class="num">4</span>推荐方向（5房优先）</h2>
-    <div class="grid">
-      <div class="rec first">
-        <span class="rank">首选 · 性价比</span>
-        <h4>Clementi Trivelis 5房</h4>
-        <p>S$1.28M · 1,130 sqft · 6分钟到地铁 · Built 2015 · 地契~94年 · 近 Nan Hua。DBSS 精装、空间大，预算还留 ~S$200k+ 缓冲 COV/装修。</p>
-      </div>
-      <div class="rec">
-        <span class="rank">次选 · 要最新</span>
-        <h4>Clementi Crest 5房</h4>
-        <p>~S$1.50M · 1,216 sqft · 5分钟到地铁 · Built 2021 · 三所名校1km。最新主流BTO，但已压预算顶，建议盯中低层议价。</p>
-      </div>
-      <div class="rec">
-        <span class="rank">中央区 · 预算放开</span>
-        <h4>Pinnacle@Duxton 5房</h4>
-        <p>~S$1.56–1.68M · ~1,119–1,163 sqft · 7分钟到 Outram · 地契~84年 · 1km仅1所小学。要D2核心地段、可接受较短地契与单一学区时考虑。</p>
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <h2><span class="num">5</span>注意事项 / 红旗</h2>
+    <p class="lead">买家手头 <strong>~S$0.9M 现金</strong>(首付+税+装修)、月入 &gt;S$18k，<strong>三套均买得起</strong>，差别在取舍：</p>
     <ul class="tight">
-      <li>🚩 <strong>地契</strong>：Pinnacle ~84 年（自2010），比 Clementi Trivelis/Crest（~94年）短约10年；银行/HDB 要求地契覆盖最年轻买家到 95 岁才可全额融资。</li>
-      <li>🚩 <strong>5房稀缺</strong>：Clementi 2010后近地铁 5房现仅 Trivelis、Crest 两个项目在售，放盘少、需快速行动；Cascadia/Towers 5房目前无 ≤1.5M 在售。</li>
-      <li>🚩 <strong>COV（现金溢价）</strong>：挂牌常高于估价；成交前先取 HDB 估价判断 COV 与最大可贷额，预留现金。</li>
-      <li>🚩 <strong>种族配额（EIP）</strong>：出价前先在 HDB 确认该单位对你族群是否开放。</li>
-      <li>🚩 <strong>名校1km 须逐套核</strong>：Nan Hua 在该区 1km 边界很紧；用 <a href="https://www.onemap.gov.sg" target="_blank" rel="noopener">OneMap</a> / <a href="https://www.moe.gov.sg/schoolfinder" target="_blank" rel="noopener">MOE SchoolFinder</a> 精确量距。</li>
+      <li><strong style="color:var(--crest)">要学区 + 长地契 + 最大实用面积 → Clementi Crest（~S$1.50M）</strong>：综合最契合 40岁2孩首套自住，<strong>首推</strong>。</li>
+      <li><strong style="color:var(--triv)">要最低风险 + 最大现金缓冲 + 性价比 → Trivelis（~S$1.28M）</strong>：稳健价值之选，<strong>强力次选</strong>。</li>
+      <li><strong style="color:var(--pin)">要 CBD 核心地段 + 地标景观、且不看重学区 → Pinnacle@Duxton（~S$1.56–1.68M）</strong>：情怀地段之选；但<strong>短地契 + 弱学区 + 高价高点</strong>三重不利,且 4% 压测下 MSR 可能吃紧。</li>
     </ul>
   </section>
 
   <section>
-    <h2><span class="num">6</span>主要数据来源</h2>
+    <h2><span class="num">2</span>位置地图</h2>
+    <p class="legend">三个核心楼盘 + 地铁站 + 名校位置。Clementi(西部)与 Pinnacle(中央区)相距约 8 公里,地图会自动缩放显示两片。点标记看详情与房源链接。</p>
+    <div id="map"></div>
+    <div class="maplegend">
+      <span><i class="dot" style="background:#c0392b"></i> 楼盘</span>
+      <span><i class="dot" style="background:#1f6f8b"></i> 地铁站</span>
+      <span><i class="dot" style="background:#1e8e5a"></i> 名校</span>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">3</span>每盘精选在售房源（含 PropertyGuru 链接）</h2>
+
+    <div class="grouptitle"><span class="gd" style="background:var(--triv)"></span>Clementi · Trivelis（DBSS · 地契~87年 · 6–7min 到 Clementi MRT）</div>
+    <div class="picks">
+      <div class="pick triv">
+        <div class="pj">⭐ 5房首选</div>
+        <h4>311A Clementi Avenue 4</h4>
+        <div class="pprice">S$1,280,000 <span class="tag t-warn">可议</span></div>
+        <ul>
+          <li>5A · 1,130 sqft · 高层、阳台无遮挡</li>
+          <li>已装修、空置(可直接入住)</li>
+          <li>500m / 6min 到 Clementi MRT</li>
+          <li>中介 Perline Chua(PropNex)</li>
+        </ul>
+        <div class="why"><b>理由：</b>三套中最便宜、买后现金缓冲最大(~S$40万);地契~87年对40岁夫妻终身无忧。近期同栋成交 S$1.243–1.275M(中层),叫价略高,<strong>有 ~2–3% 议价空间</strong>,可压向 ~S$1.24–1.26M。</div>
+        <a class="pgbtn" href="https://www.propertyguru.com.sg/listing/hdb-for-sale-311a-clementi-avenue-4-60231878" target="_blank" rel="noopener">在 PropertyGuru 查看 →</a>
+      </div>
+      <div class="pick triv">
+        <div class="pj">💡 预算/备选</div>
+        <h4>Trivelis 4房（311A/B/C）</h4>
+        <div class="pprice">S$1.10M – 1.13M</div>
+        <ul>
+          <li>4房 · 861–883 sqft · 同样 6–8min 到地铁</li>
+          <li>预算只用一半多,承诺更低</li>
+          <li>地契~87年 · DBSS 精装</li>
+        </ul>
+        <div class="why"><b>理由：</b>若更想压低总价/月供或保留更多现金,Trivelis 4房入门仅 ~110万,是 Clementi 近地铁最便宜的较新组屋。</div>
+        <a class="pgbtn alt" href="https://www.propertyguru.com.sg/property-for-sale?listingType=sale&amp;isCommercial=false&amp;hdbEstate=10&amp;_freetextDisplay=Clementi&amp;propertyTypeGroup=H&amp;propertyTypeCode=4A&amp;propertyTypeCode=4I&amp;propertyTypeCode=4S&amp;propertyTypeCode=4NG&amp;propertyTypeCode=4STD&amp;freetext=Trivelis&amp;sort=price&amp;order=asc" target="_blank" rel="noopener">查看 Trivelis 4房 →</a>
+      </div>
+    </div>
+
+    <div class="grouptitle"><span class="gd" style="background:var(--crest)"></span>Clementi · Clementi Crest（BTO2021 · 地契~94年 · 5min 到 Clementi MRT）</div>
+    <div class="picks">
+      <div class="pick crest">
+        <div class="pj">⭐ 学区首选</div>
+        <h4>445A Clementi Avenue 3</h4>
+        <div class="pprice">S$1,499,999</div>
+        <ul>
+          <li>5I · 1,216 sqft(三套中实用最大)· 无遮挡</li>
+          <li>超大主卧 + 储藏间 + 防空壕 · 空置</li>
+          <li><span class="tag t-ok">开放所有种族(无 EIP 限制)</span></li>
+          <li>420m / 5min 到 Clementi MRT · 中介 Ignatius Tan(PropNex)</li>
+        </ul>
+        <div class="why"><b>理由：</b>地契最长(~94年)、学区最强(Clementi Primary 隔壁 + 南华 SAP 名校)、5房稀缺保值;2032 跨岛线换乘升级是确定利好。对照5月同栋高层 S$1.58M 记录,此价对中高层偏吸引;<strong>中低层可议至 ~S$1.45–1.46M</strong>。</div>
+        <a class="pgbtn" href="https://www.propertyguru.com.sg/listing/hdb-for-sale-445a-clementi-avenue-3-500099943" target="_blank" rel="noopener">在 PropertyGuru 查看 →</a>
+      </div>
+    </div>
+
+    <div class="grouptitle"><span class="gd" style="background:var(--pin)"></span>中央区 · Pinnacle@Duxton（地契~84年 · 7min 到 Outram Park）</div>
+    <div class="picks">
+      <div class="pick pin">
+        <div class="pj">5房 · 入门</div>
+        <h4>低层 5房（1A–1G）</h4>
+        <div class="pprice">S$1.56M – 1.60M</div>
+        <ul>
+          <li>5I · ~1,119–1,130 sqft</li>
+          <li>CBD 核心 · Outram 三线换乘</li>
+          <li>进入 Pinnacle 5房门槛最低</li>
+        </ul>
+        <div class="why"><b>理由：</b>想要中央区5房又控总价,盯低层/未翻新盘,这一档议价空间相对较大。</div>
+        <a class="pgbtn alt" href="https://www.propertyguru.com.sg/property-for-sale/at-pinnacle-duxton-20538?sort=price&amp;order=asc" target="_blank" rel="noopener">查看 Pinnacle 全部在售 →</a>
+      </div>
+      <div class="pick pin">
+        <div class="pj">5房 · 旗舰</div>
+        <h4>1B Cantonment Road</h4>
+        <div class="pprice">S$1,680,000</div>
+        <ul>
+          <li>5I · 1,163 sqft · 高层转角</li>
+          <li>城景 / 南部湾 / Sentosa <strong>全景</strong></li>
+          <li>中介 Ink Chua(ERA)</li>
+        </ul>
+        <div class="why"><b>理由：</b>地标全景旗舰盘,保值/流动性强;但接近历史高点(5月记录 S$1.63M),议价空间小、易有 COV。</div>
+        <a class="pgbtn" href="https://www.propertyguru.com.sg/listing/hdb-for-sale-pinnacle-duxton-500167843" target="_blank" rel="noopener">在 PropertyGuru 查看 →</a>
+      </div>
+      <div class="pick pin">
+        <div class="pj">💡 4房 · 预算款</div>
+        <h4>1G Cantonment Road</h4>
+        <div class="pprice">S$1,225,000 <span class="tag t-warn">可议</span></div>
+        <ul>
+          <li>4房 · 1,012 sqft</li>
+          <li>570m / 7min 到 Outram Park</li>
+          <li>中介 Adeline Peng(PropNex)</li>
+        </ul>
+        <div class="why"><b>理由：</b>想留在中央区但控制总价/月供,4房是更稳的入口(月供更低、MSR 更宽松);Pinnacle 5房现已全面 &gt;1.5M。</div>
+        <a class="pgbtn" href="https://www.propertyguru.com.sg/listing/hdb-for-sale-pinnacle-duxton-25563655" target="_blank" rel="noopener">在 PropertyGuru 查看 →</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">4</span>三方对比表</h2>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>项目</th><th>叫价</th><th>面积</th><th>精确剩余地契</th><th>到地铁</th><th>学区</th><th>同栋近期成交</th><th>主要优点</th><th>主要缺点</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong style="color:var(--triv)">Trivelis</strong><br>Clementi Ave 4</td>
+            <td class="price">~S$1.28M</td>
+            <td>1,130 sqft<br><span class="legend">实用内部仅~947 sqft</span></td>
+            <td><strong>~87年</strong><br>(2014起算)</td>
+            <td>6–7min Clementi MRT(全程有盖)</td>
+            <td>成熟市镇,学校充足</td>
+            <td>S$1.243M(2026/6,19–21楼)<br>S$1.275M(2025/8,16–18楼)</td>
+            <td>最便宜、缓冲最大;DBSS门禁/1:1车位;地段交通顶级</td>
+            <td>实用面积偏小、走廊窄;DBSS有质量缺陷史;5房成交稀薄</td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--crest)">Clementi Crest</strong><br>Clementi Ave 3</td>
+            <td class="price">~S$1.50M</td>
+            <td>1,216 sqft<br><span class="legend">三套最大</span></td>
+            <td><strong>~94年</strong><br>(2021起算)</td>
+            <td>5min Clementi MRT(2032跨岛线换乘)</td>
+            <td><strong>最强</strong>:Clementi Pri隔壁 + 南华SAP</td>
+            <td>S$1.58M(2026/5,37–39楼,记录)<br>S$1.458M(2025/8,25–27楼)</td>
+            <td>地契最长、学区最强、实用面积最大、保值</td>
+            <td>涨势猛、近周期高点;Clementi Central人多</td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--pin)">Pinnacle@Duxton</strong><br>Cantonment Rd(D2)</td>
+            <td class="price">~S$1.56–1.68M</td>
+            <td>~1,130–1,163 sqft</td>
+            <td><strong>~84年</strong><br>(2011起算)</td>
+            <td>7min Outram(三线)+ Tanjong Pagar</td>
+            <td><strong>最弱</strong>:1km基本仅 Cantonment Pri</td>
+            <td>S$1.63M(2026/5,43–45楼,记录)<br>S$1.58M(2025年中,34–36楼)</td>
+            <td>地段最核心、地标全景、保值/流动性强</td>
+            <td>总价最高近高点、议价小易COV;地契最短;学区薄弱</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">5</span>财务方案（PR 首套 · 现金 ~S$0.9M · 月入 &gt;S$18k）</h2>
+    <p class="note" style="margin-top:0">PR 规则(2026现行,已核实):ABSD <strong>首套5%</strong>;<strong>无任何 HDB/CPF 补贴</strong>;只能<strong>银行贷款</strong>(LTV≤75%、最低5%现金首付);买 HDB 须名下无其他房产;<strong>MSR 30% + TDSR 55%</strong>,银行按 ~4% 压力利率核额。来源 IRAS / MAS / HDB。</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>项目</th><th>叫价</th><th>BSD</th><th>ABSD 5%</th><th>印花税合计</th><th>首付25%</th><th>装修(估)</th><th>前期合计</th><th>0.9M 现金剩余</th><th>75%贷款</th><th>压测月供(4%/25年)</th></tr></thead>
+        <tbody>
+          <tr><td><strong style="color:var(--triv)">Trivelis</strong></td><td>S$1.28M</td><td>S$35,800</td><td>S$64,000</td><td>S$99,800</td><td>S$320,000</td><td>~S$80,000</td><td>~S$499,800</td><td class="price t-ok">~S$40万</td><td>S$960,000</td><td>~S$5,070</td></tr>
+          <tr><td><strong style="color:var(--crest)">Clementi Crest</strong></td><td>S$1.50M</td><td>S$44,600</td><td>S$75,000</td><td>S$119,600</td><td>S$375,000</td><td>~S$90,000</td><td>~S$584,600</td><td class="price">~S$31万</td><td>S$1,125,000</td><td>~S$5,940</td></tr>
+          <tr><td><strong style="color:var(--pin)">Pinnacle</strong></td><td>S$1.63M</td><td>S$51,100</td><td>S$81,500</td><td>S$132,600</td><td>S$407,500</td><td>~S$80,000</td><td>~S$620,100</td><td class="price t-warn">~S$28万</td><td>S$1,222,500</td><td>~S$6,450</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="tight">
+      <li><strong>三套都能用 0.9M 现金覆盖"首付+税+装修",但缓冲差异大</strong>:Trivelis 买后还剩 ~S$40万、Crest ~S$31万、Pinnacle ~S$28万。</li>
+      <li><strong>⚠️ Pinnacle 的 MSR 约束</strong>:贷款 S$122万,4% 压测月供 ~S$6,450,需家庭月入 ≈ S$21,500 才过 MSR 30%。以"&gt;S$18k"计可能吃紧——<strong>出价前务必做贷款预批(IPA)</strong>。Trivelis(需 ~S$16,900)、Crest(需 ~S$19,800)更稳。</li>
+      <li>你们也可<strong>多投入现金、少贷款</strong>来压低月供;但建议保留 6–12 个月家庭开支的应急金。</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="num">6</span>注意事项 / 红旗</h2>
+    <ul class="tight">
+      <li>🚩 <strong>SPR 配额 + EIP</strong>:PR 买家受"每栋 SPR 配额"与族群配额双重限制——出价前在 HDB 确认该单位对你们开放(Crest 445A 列明"开放所有种族")。</li>
+      <li>🚩 <strong>地契</strong>:Pinnacle ~84年(已用掉~15年),对要长期持有的家庭是真实长期拖累;Crest ~94年最优。</li>
+      <li>🚩 <strong>COV(现金溢价)</strong>:ABSD/BSD 按"价格与 HDB 估值孰高"计;叫价高于估值的差额需<strong>全现金</strong>支付。Pinnacle 高层/Crest 高层尤其要注意。</li>
+      <li>🚩 <strong>议价锚点</strong>:务必以"楼层匹配 + 近3–6个月同栋成交"议价,别被乐观叫价带偏(见对比表成交印记)。</li>
+      <li>🎓 <strong>学区(PR)</strong>:PR 子女小一报名优先级低于公民,1km 溢价对你们价值有限;学龄前孩子可在 PR 阶段碰运气,别当硬指标。</li>
+      <li>🏗️ <strong>Trivelis 验房</strong>:DBSS 有历史质量缺陷记录,看房逐项验收具体单位状况。</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="num">7</span>主要数据来源</h2>
     <p class="src">
-      PropertyGuru（项目页与实时筛选）·
       <a href="https://www.srx.com.sg/hdb/central-area/the-pinnacle-duxton-hbpin016/last-transacted-prices" target="_blank" rel="noopener">SRX Pinnacle 成交/地契</a> ·
-      <a href="https://theonlinecitizen.com/2026/05/29/pinnacle-duxton-five-room-flat-sold-for-record-s-1-63-million-amid-rising-resale-demand" target="_blank" rel="noopener">The Online Citizen · Pinnacle 5房记录（84年地契）</a> ·
       <a href="https://stackproperty.sg/hdb/projects/trivelis" target="_blank" rel="noopener">StackProperty · Trivelis</a> ·
       <a href="https://stackedhomes.com/clementi-4-room-flat-record-135m-sellers-took-home/" target="_blank" rel="noopener">Stacked Homes · Clementi Crest</a> ·
-      <a href="https://www.onemap.gov.sg" target="_blank" rel="noopener">OneMap（学校 1km）</a>
+      <a href="https://www.edgeprop.sg/property-news/it-good-deal-five-room-flat-clementi-sold-158-mil-setting-new-town-high" target="_blank" rel="noopener">EdgeProp · Crest 5房记录</a> ·
+      <a href="https://theonlinecitizen.com/2026/05/29/pinnacle-duxton-five-room-flat-sold-for-record-s-1-63-million-amid-rising-resale-demand" target="_blank" rel="noopener">Pinnacle 5房记录(84年地契)</a> ·
+      IRAS(ABSD/BSD)· MAS(LTV/MSR/TDSR)· HDB/CPF(PR资格/补贴)·
+      <a href="https://www.onemap.gov.sg" target="_blank" rel="noopener">OneMap(学校1km)</a>
     </p>
   </section>
 
@@ -215,5 +322,32 @@
 <footer class="wrap">
   研究与页面由 Claude（Anthropic）整理 · 核对日期 2026-06-28 · 仅供个人参考，非投资 / 财务建议
 </footer>
+
+<script>
+  (function(){
+    if(typeof L==='undefined'){return;}
+    var map=L.map('map',{scrollWheelZoom:false});
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      maxZoom:19, attribution:'© OpenStreetMap'
+    }).addTo(map);
+    function mk(lat,lng,color,r){return L.circleMarker([lat,lng],{radius:r||9,color:'#fff',weight:2,fillColor:color,fillOpacity:1});}
+    var P='#c0392b',T='#1f6f8b',S='#1e8e5a';
+    var pts=[
+      // Clementi cluster
+      {la:1.3126,ln:103.7640,c:P,r:10,html:'<b>Trivelis（5房 ~S$1.28M）</b><br>311A Clementi Ave 4 · 地契~87年<br><a href="https://www.propertyguru.com.sg/listing/hdb-for-sale-311a-clementi-avenue-4-60231878" target="_blank">PropertyGuru 房源 →</a>'},
+      {la:1.3146,ln:103.7660,c:P,r:10,html:'<b>Clementi Crest（5房 ~S$1.50M）</b><br>445A Clementi Ave 3 · 地契~94年<br><a href="https://www.propertyguru.com.sg/listing/hdb-for-sale-445a-clementi-avenue-3-500099943" target="_blank">PropertyGuru 房源 →</a>'},
+      {la:1.3151,ln:103.7652,c:T,r:8,html:'<b>Clementi MRT（EW23）</b>'},
+      {la:1.3169,ln:103.7598,c:S,r:8,html:'<b>南华小学 Nan Hua Primary</b>(SAP名校)'},
+      // Pinnacle cluster
+      {la:1.2765,ln:103.8417,c:P,r:10,html:'<b>Pinnacle@Duxton</b><br>5房 ~S$1.56–1.68M / 4房 ~S$1.225M · 地契~84年<br><a href="https://www.propertyguru.com.sg/property-for-sale/at-pinnacle-duxton-20538?sort=price&order=asc" target="_blank">PropertyGuru 房源 →</a>'},
+      {la:1.2806,ln:103.8396,c:T,r:8,html:'<b>Outram Park MRT</b>(EW16/NE3/TE17 三线)'},
+      {la:1.2807,ln:103.8447,c:T,r:8,html:'<b>Maxwell MRT</b>(TE18)'},
+      {la:1.2761,ln:103.8432,c:S,r:8,html:'<b>Cantonment Primary School</b>'}
+    ];
+    var latlngs=[];
+    pts.forEach(function(p){var m=mk(p.la,p.ln,p.c,p.r).addTo(map);m.bindPopup(p.html);latlngs.push([p.la,p.ln]);});
+    map.fitBounds(latlngs,{padding:[40,40]});
+  })();
+</script>
 </body>
 </html>
